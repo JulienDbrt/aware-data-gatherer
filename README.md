@@ -1,73 +1,185 @@
-# Welcome to your Lovable project
+# RSS-GPT
 
-## Project info
+A lightweight **FastAPI** backend that aggregates RSS feeds, stores articles, and exposes a clean REST API—ideal for powering newsletters, dashboards, or AI-driven summarizers.
 
-**URL**: https://lovable.dev/projects/24afd060-ec13-4ee4-be17-51e73168c165
+<p align="center">
+  <img src="https://img.shields.io/badge/FastAPI-0.110+-green?style=flat-square" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square" alt="Python">
+  <img src="https://img.shields.io/badge/License-MIT-lightgrey?style=flat-square" alt="License">
+</p>
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## Table of Contents
 
-**Use Lovable**
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Project Structure](#project-structure)
+- [Configuration](#configuration)
+- [API Reference](#api-reference)
+- [Development Workflow](#development-workflow)
+- [System Diagram](#system-diagram)
+- [Security Notes](#security-notes)
+- [Roadmap](#roadmap)
+- [Contributing](#contributing)
+- [License](#license)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/24afd060-ec13-4ee4-be17-51e73168c165) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## Features
 
-**Use your preferred IDE**
+- **FastAPI** with automatic interactive docs at `/docs`
+- **SQLite** out-of-the-box, optional **PostgreSQL** support
+- Periodic RSS fetcher script (cron-friendly)
+- Modular routers (`/sources`, `/articles`, `/items`, `/refresh`, `/graph`)
+- Typed models with **Pydantic**
+- One-command setup for local development
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Quick Start
 
-Follow these steps:
+```bash
+# 1. Clone the repository
+git clone https://github.com/your-username/RSS-GPT.git
+cd RSS-GPT
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# 2. Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# 3. Install dependencies
+pip install -r requirements.txt
 
-# Step 3: Install the necessary dependencies.
-npm i
+# 4. Initialize the database (SQLite)
+python init_db.py
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+# 5. Run the API server
+uvicorn app:app --reload --port 8000
+
+# 6. (Optional) Fetch articles from all sources
+python fetch_articles.py
 ```
 
-**Edit a file directly in GitHub**
+---
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Project Structure
 
-**Use GitHub Codespaces**
+```
+rss-gpt/
+├── app.py               # FastAPI entry-point
+├── routers/
+│   ├── articles.py
+│   ├── sources.py
+│   └── (graph.py)
+├── models.py            # SQLAlchemy ORM models
+├── schemas.py           # Pydantic models
+├── fetch_articles.py    # Cron-capable fetcher
+├── init_db.py
+├── config.ini
+├── requirements.txt
+└── README.md
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Configuration
 
-This project is built with:
+| Key              | Default                 | Description                           |
+| ---------------- | ----------------------- | ------------------------------------- |
+| `DATABASE_URL`   | `sqlite:///rssgpt.db`   | SQLAlchemy connection string          |
+| `FETCH_INTERVAL` | *None*                  | If set, the fetcher loops every N sec |
+| `OPENAI_API_KEY` | *env* var / `.env` file | For downstream AI usage               |
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+> **Tip:** Copy `config.ini.example` to `config.ini` and adjust as needed.
 
-## How can I deploy this project?
+---
 
-Simply open [Lovable](https://lovable.dev/projects/24afd060-ec13-4ee4-be17-51e73168c165) and click on Share -> Publish.
+## API Reference
 
-## Can I connect a custom domain to my Lovable project?
+Once the server is running, visit **`/docs`** for the full OpenAPI spec.
 
-Yes, you can!
+### Key Endpoints
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+| Method | Path                    | Purpose                        |
+| ------ | ----------------------- | ------------------------------ |
+| GET    | `/`                     | Health check                   |
+| GET    | `/sources/`             | List sources                   |
+| POST   | `/sources/`             | Add a source                   |
+| PUT    | `/sources/{id}`         | Update a source                |
+| DELETE | `/sources/{id}`         | Delete a source                |
+| POST   | `/refresh/{source_id}`  | Refresh a specific source      |
+| GET    | `/articles/`            | List/filter articles           |
+| GET    | `/items`                | List articles (frontend shape) |
+| GET    | `/graph`                | Article relationship graph     |
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+#### Example: Add a new RSS source
+
+```bash
+curl -X POST http://127.0.0.1:8000/sources/ \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Example","url":"https://example.com/rss"}'
+```
+
+---
+
+## Development Workflow
+
+1. Start the backend:
+   ```bash
+   uvicorn app:app --reload --port 8000
+   ```
+2. (Optional) Start the frontend (if using with a React/Vite client):
+   ```bash
+   npm run dev
+   ```
+3. Access the API docs at [http://localhost:8000/docs](http://localhost:8000/docs)
+4. Access the frontend at [http://localhost:5173](http://localhost:5173) (if applicable)
+
+---
+
+## System Diagram
+
+```mermaid
+flowchart TD
+    subgraph Frontend (Vite + React)
+        A[User Browser] -- HTTP (localhost:5173) --> B[Vite Dev Server]
+    end
+    subgraph Backend (FastAPI)
+        C[FastAPI API] -- HTTP (localhost:8000) --> D[Database]
+    end
+    B -- API Requests (CORS/Proxy) --> C
+```
+
+---
+
+## Security Notes
+
+- **Authentication:** None by default (PRs welcome!)
+- **CORS:** Enable as needed for your frontend origin
+- **Input validation:** Handled via Pydantic, but custom URL checks recommended
+- **Secrets:** Store API keys in environment variables or a `.env` file
+
+---
+
+## Roadmap
+
+- [ ] JWT / API-key authentication
+- [ ] Pagination & rate limiting
+- [ ] Background task queue (Celery/RQ)
+- [ ] Dockerfile & CI workflow
+- [ ] Unit / integration tests
+
+---
+
+## Contributing
+
+1. Fork the repo & create a feature branch
+2. Run `pre-commit install` for linting/formatting
+3. Open a PR with a descriptive title and context
+
+---
+
+## License
+
+MIT © 2025 Julien Dabert
