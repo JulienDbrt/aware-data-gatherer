@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Layout from "@/components/Layout";
@@ -9,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Item, api } from "@/services/api";
 import { mockItems } from "@/utils/mockData";
-import { Rss, Graph, Settings, Cpu } from "lucide-react";
+import { Rss, BarChart, Settings, Cpu } from "lucide-react";
 
 const Index = () => {
   const [items, setItems] = useState<Item[]>([]);
@@ -74,7 +73,7 @@ const Index = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-lg flex items-center gap-2">
-                <Graph className="h-5 w-5 text-aggregator-purple" />
+                <BarChart className="h-5 w-5 text-aggregator-purple" />
                 Knowledge Graph
               </CardTitle>
             </CardHeader>

@@ -1,10 +1,9 @@
-
 import { ReactNode, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
-import { Menu, X, Home, Rss, Graph, Settings } from "lucide-react";
+import { Menu, X, Home, Rss, BarChart, Settings } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
@@ -19,7 +18,7 @@ const Layout = ({ children }: LayoutProps) => {
   const navItems = [
     { label: 'Home', path: '/', icon: <Home className="h-5 w-5 mr-2" /> },
     { label: 'Items', path: '/items', icon: <Rss className="h-5 w-5 mr-2" /> },
-    { label: 'Graph', path: '/graph', icon: <Graph className="h-5 w-5 mr-2" /> },
+    { label: 'Graph', path: '/graph', icon: <BarChart className="h-5 w-5 mr-2" /> },
     { label: 'Sources', path: '/sources', icon: <Settings className="h-5 w-5 mr-2" /> },
   ];
 
